@@ -189,9 +189,10 @@ body.ready #nav{display:flex}
     <div class="b" style="--c:var(--a1)"><span>Gold</span><div class="tr"><div class="fl" id="bf-gold"></div></div><em id="bv-gold"></em></div>
     <div class="b" style="--c:var(--a2)"><span>Coins</span><div class="tr"><div class="fl" id="bf-coins"></div></div><em id="bv-coins"></em></div>
     <div class="b" style="--c:var(--a3)"><span>Notes</span><div class="tr"><div class="fl" id="bf-notes"></div></div><em id="bv-notes"></em></div>
-    <div class="b" style="--c:var(--a4)"><span>FamPay</span><div class="tr"><div class="fl" id="bf-fam"></div></div><em id="bv-fam"></em></div></div>
+    <div class="b" style="--c:var(--a4)"><span>FamPay</span><div class="tr"><div class="fl" id="bf-fam"></div></div><em id="bv-fam"></em></div>
+    <div class="b" style="--c:var(--hi)"><span>Bank</span><div class="tr"><div class="fl" id="bf-bank"></div></div><em id="bv-bank"></em></div></div>
   <div class="br card rv" style="animation-delay:1.45s"><div class="ct2"><span>LIQUIDITY INDEX</span><b id="gt">—</b></div>
-    <svg viewBox="0 0 120 72" class="ch" style="max-width:260px;margin:0 auto"><defs><linearGradient id="gg2"><stop offset="0" style="stop-color:var(--au)"/><stop offset="1" style="stop-color:var(--arc)"/></linearGradient></defs><path d="M10 62A50 50 0 0 1 110 62" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="9" stroke-linecap="round"/><path id="gArc" d="M10 62A50 50 0 0 1 110 62" fill="none" stroke="url(#gg2)" stroke-width="9" stroke-linecap="round" stroke-dasharray="157.1" stroke-dashoffset="157.1" style="transition:stroke-dashoffset 1.6s cubic-bezier(.2,.8,.2,1);filter:drop-shadow(0 0 5px var(--arc))"/><text id="gTxt" x="60" y="54" text-anchor="middle" fill="#fff" font-family="Orbitron,sans-serif" font-size="15" font-weight="700">0%</text><text x="60" y="67" text-anchor="middle" fill="#9c8a80" font-family="Orbitron,sans-serif" font-size="4.5" letter-spacing="1.5">CASH &amp; WALLET SHARE</text></svg></div>
+    <svg viewBox="0 0 120 72" class="ch" style="max-width:260px;margin:0 auto"><defs><linearGradient id="gg2"><stop offset="0" style="stop-color:var(--au)"/><stop offset="1" style="stop-color:var(--arc)"/></linearGradient></defs><path d="M10 62A50 50 0 0 1 110 62" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="9" stroke-linecap="round"/><path id="gArc" d="M10 62A50 50 0 0 1 110 62" fill="none" stroke="url(#gg2)" stroke-width="9" stroke-linecap="round" stroke-dasharray="157.1" stroke-dashoffset="157.1" style="transition:stroke-dashoffset 1.6s cubic-bezier(.2,.8,.2,1);filter:drop-shadow(0 0 5px var(--arc))"/><text id="gTxt" x="60" y="54" text-anchor="middle" fill="#fff" font-family="Orbitron,sans-serif" font-size="15" font-weight="700">0%</text><text x="60" y="67" text-anchor="middle" fill="#9c8a80" font-family="Orbitron,sans-serif" font-size="4.5" letter-spacing="1.5">CASH, WALLET &amp; BANK</text></svg></div>
   <div class="acts rv" style="animation-delay:1.6s"><button class="btn gold" id="rate">Edit gold</button><button class="btn" id="reset">Wipe data</button></div>
 </div><div class="pg" id="p-goals"><h2>Goals <small id="gsub"></small></h2><div class="grid" id="glist"></div><button class="btn" id="addg" style="width:100%;margin-top:12px">+ New goal</button></div>
 <div class="pg" id="p-share"><h2>Share <small>Report</small></h2>
@@ -206,7 +207,7 @@ body.ready #nav{display:flex}
 <div class="ov" id="ov"><div class="sheet" id="sheet"></div></div>
 <script>
 const COINS=[1,2,5,10,20],NOTES=[10,20,50,100,200,500];
-const def={gold:0,coins:{},notes:{},fam:0,owed:[],hist:[],goals:[]};
+const def={gold:0,coins:{},notes:{},fam:0,bank:0,bankName:"",owed:[],hist:[],goals:[]};
 let S=JSON.parse(JSON.stringify(def));
 try{const r=localStorage.getItem("wallet");if(r)S=Object.assign(S,JSON.parse(r))}catch(e){}
 if(S.gold&&typeof S.gold==="object")S.gold=(S.gold.g||0)*(S.gold.rate||0);
@@ -216,13 +217,14 @@ const save=()=>{snap();try{localStorage.setItem("wallet",JSON.stringify(S))}catc
 const setSync=t=>{const e=document.getElementById("sy");if(e)e.textContent=t;const h=document.getElementById("hs");if(h)h.textContent=/synced/i.test(t)?"OK":/local/i.test(t)?"LOCAL":"..."};
 const inr=n=>"₹"+(Math.round(n*100)/100).toLocaleString("en-IN",{maximumFractionDigits:2});
 const sum=o=>Object.entries(o||{}).reduce((a,[d,c])=>a+d*c,0);
-const val=()=>({gold:+S.gold||0,coins:sum(S.coins),notes:sum(S.notes),fam:+S.fam||0});
+const val=()=>({gold:+S.gold||0,coins:sum(S.coins),notes:sum(S.notes),fam:+S.fam||0,bank:+S.bank||0});
 const ART={
 gold:`<svg viewBox="0 0 24 24"><path d="M3 17l3-7h12l3 7z"/><path d="M8.5 10l1.2-3h4.6l1.2 3"/></svg>`,
 coins:`<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M9 8h6M9 11h6M9 8c3.5 0 3.5 4 0 4l5 4"/></svg>`,
 notes:`<svg viewBox="0 0 24 24"><rect x="3" y="6.5" width="18" height="11" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6.5 12h.01M17.5 12h.01"/></svg>`,
-fam:`<svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="2.5"/><path d="M3 10h18M7 15h4"/></svg>`};
-const META={gold:["Digital Gold","var(--a1)"],coins:["Coins","var(--a2)"],notes:["Notes","var(--a3)"],fam:["FamPay","var(--a4)"]};
+fam:`<svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="2.5"/><path d="M3 10h18M7 15h4"/></svg>`,
+bank:`<svg viewBox="0 0 24 24"><path d="M3 9.5L12 4l9 5.5z"/><path d="M5 9.5V18M9.5 9.5V18M14.5 9.5V18M19 9.5V18M3 20h18"/></svg>`};
+const META={gold:["Digital Gold","var(--a1)"],coins:["Coins","var(--a2)"],notes:["Notes","var(--a3)"],fam:["FamPay","var(--a4)"],bank:["Bank","var(--hi)"]};
 let shown=0,ready=false,fresh=true,pending=0;
 function anim(to){const f=shown,t0=performance.now();(function st(n){const p=Math.min(1,(n-t0)/1400);shown=f+(to-f)*(1-Math.pow(1-p,4));total.textContent=inr(shown);if(p<1)requestAnimationFrame(st)})(t0)}
 function render(){
@@ -231,7 +233,7 @@ function render(){
   let off=0;const R=15.9;
   donut.innerHTML=`<circle cx="21" cy="21" r="${R}" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="4"/>`+Object.keys(v).map(k=>{const p=t?v[k]/t*100:0,e=`<circle cx="21" cy="21" r="${R}" fill="none" style="stroke:${META[k][1]}" stroke-width="4" stroke-dasharray="${Math.max(0,p-.8)} ${100-Math.max(0,p-.8)}" stroke-dashoffset="${-off}"/>`;off+=p;return e}).join("");
   leg.innerHTML=Object.keys(v).map(k=>`<div><i style="background:${META[k][1]};color:${META[k][1]}"></i>${META[k][0]}<span>${t?Math.round(v[k]/t*100):0}%</span></div>`).join("");
-  const sub={gold:"Amount bought",coins:Object.values(S.coins).reduce((a,b)=>a+(+b||0),0)+" coins",notes:Object.values(S.notes).reduce((a,b)=>a+(+b||0),0)+" notes",fam:"Wallet balance"};
+  const sub={gold:"Amount bought",coins:Object.values(S.coins).reduce((a,b)=>a+(+b||0),0)+" coins",notes:Object.values(S.notes).reduce((a,b)=>a+(+b||0),0)+" notes",fam:"Wallet balance",bank:esc(S.bankName)||"Account balance"};
   list.innerHTML=Object.keys(v).map((k,i)=>`<button class="row br${fresh?" rv":""}" data-k="${k}" style="--c:${META[k][1]};${fresh?`animation-delay:${.55+i*.12}s`:""}"><div class="ico">${ART[k]}</div><div class="n"><b>${META[k][0]}</b><span>${sub[k]}</span><div class="pill"><i style="width:${Math.max(4,t?v[k]/t*100:0)}%"></i></div></div><div class="v">${inr(v[k])}</div></button>`).join("");
   list.querySelectorAll(".row").forEach(b=>b.onclick=()=>open(b.dataset.k));
   renderOwed();renderCharts();renderGoals();renderShare();
@@ -249,7 +251,7 @@ function snap(){const t=Object.values(val()).reduce((a,b)=>a+b,0);S.hist=S.hist|
 function renderCharts(){
   const v=val(),t=Object.values(v).reduce((a,b)=>a+b,0);
   for(const k in v){const f=document.getElementById("bf-"+k);if(f){f.style.width=(ready&&t?v[k]/t*100:0)+"%";document.getElementById("bv-"+k).textContent=inr(v[k])}}
-  const liq=t?(v.coins+v.notes+v.fam)/t:0;
+  const liq=t?(v.coins+v.notes+v.fam+v.bank)/t:0;
   gArc.style.strokeDashoffset=157.1*(1-(ready?liq:0));gTxt.textContent=Math.round(liq*100)+"%";gt.textContent=t?(liq>.5?"LIQUID":"INVESTED"):"—";
   const hs=(S.hist||[]).slice(-40);
   if(hs.length<2){lc.innerHTML='<div class="empty">Trend builds as your balance changes over time</div>';trend.textContent="—";return}
@@ -272,12 +274,14 @@ function openOwed(i){
 function open(k){
   let h="";
   if(k==="gold")h=`<p>Total money you've spent buying gold</p><label>Gold bought (₹)</label><input id="g" type="number" min="0" value="${S.gold}">`;
+  else if(k==="bank")h=`<p>How much is in your bank account right now</p><label>Bank name (optional)</label><input id="bkn" type="text" value="${esc(S.bankName)}" placeholder="e.g. HDFC Savings"><label>Balance (₹)</label><input id="bk" type="number" min="0" value="${S.bank}">`;
   else if(k==="fam")h=`<p>Current wallet balance</p><label>Balance (₹)</label><input id="f" type="number" min="0" value="${S.fam}">`;
   else{const D=k==="coins"?COINS:NOTES;h=`<p>How many of each do you have?</p>`+D.map(d=>`<div class="step"><div class="d">₹${d}<small>${k==="coins"?"coin":"note"}</small></div><button data-d="${d}" data-s="-1">−</button><input type="number" min="0" data-c="${d}" value="${S[k][d]||0}"><button data-d="${d}" data-s="1">+</button></div>`).join("");}
   h=`<div class="sh"><div class="ico" style="--c:${META[k][1]}">${ART[k]}</div><div><h3>${META[k][0]}</h3></div></div>`+h+`<div class="tot"><span>VALUE</span><span id="sv"></span></div><button class="btn gold" style="width:100%" id="done">Save</button>`;
   sheet.innerHTML=h;ov.classList.add("on");
   const read=()=>{
     if(k==="gold"){S.gold=+g.value||0;sv.textContent=inr(S.gold)}
+    else if(k==="bank"){S.bank=+bk.value||0;S.bankName=bkn.value.trim();sv.textContent=inr(S.bank)}
     else if(k==="fam"){S.fam=+f.value||0;sv.textContent=inr(S.fam)}
     else{sheet.querySelectorAll("[data-c]").forEach(i=>S[k][i.dataset.c]=Math.max(0,parseInt(i.value)||0));sv.textContent=inr(sum(S[k]))}
     save();render();
